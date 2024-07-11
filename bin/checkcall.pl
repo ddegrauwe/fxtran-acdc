@@ -1,7 +1,7 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env -S perl -w
 
 use strict;
-use local::lib;
+#use local::lib;
 use fxtran;
 use fxtran::parser;
 use fxtran::xpath;

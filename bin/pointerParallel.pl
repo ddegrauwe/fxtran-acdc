@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env -S perl -w
 
 #
 # Copyright 2022 Meteo-France
@@ -8,7 +8,7 @@
 
 #
 use strict;
-use local::lib;
+#use local::lib;
 use FindBin qw ($Bin);
 use lib "$Bin/../lib";
 
