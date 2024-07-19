@@ -28,9 +28,15 @@ ff="arpifs/adiab/gnhpre.F90                       \
    .fypp/arpifs/adiab/sigam_nh_gp.F90             \
    arpifs/adiab/gp_kappa.F90                      \
    arpifs/adiab/gp_kappat.F90                     \
-   arpifs/adiab/larcinha.F90"
+   arpifs/adiab/larcinha.F90                      \
+   arpifs/adiab/gnhx.F90                          \
+   arpifs/adiab/gpgrgeo.F90                       \
+   arpifs/adiab/gpgrxyb.F90                       \
+   arpifs/adiab/gphluv.F90                        \
+   arpifs/adiab/gphpre.F90                        \
+   arpifs/adiab/gpskapi.F90"
 
-ff=""
+#ff=""
 
 ### create _openacc files
 for f in ${ff}; do
@@ -73,15 +79,16 @@ ff="arpifs/adiab/cpg_gp.F90         \
 	arpifs/adiab/lapineb.F90        \
 	aladin/adiab/elarmes.F90        \
 	arpifs/adiab/larcinb.F90        \
-	arpifs/adiab/larcinhb.F90"
+	arpifs/adiab/larcinhb.F90       \
+	arpifs/adiab/cpglag.F90"
 
-ff="arpifs/adiab/lapineb.F90 arpifs/adiab/larcinhb.F90"
+#ff=""
 
 for f in ${ff}; do
 
 	echo "creating parallel version of ${f}"
 
-	dir=$(dirname $f)
+	dir=$(dirname ${f} | sed -e "s|.fypp/||")
 
 	pointerParallel.pl \
 		--gpumemstat --stack84 --jlon JROF --nproma YDCPG_OPTS%KLON,YDGEOMETRY%YRDIM%NPROMA,YDGEOMETRY%YRDIM%NPROMNH --cycle 49 --use-acpy \
@@ -89,7 +96,9 @@ for f in ${ff}; do
 		src/local/$dir $(resolve $f)
 	
 	# check if called openacc and parallel files exist
-	openacc_includes=$(grep "#include.*_openacc.intfb.h" src/local/${f%.F90}_parallel.F90 | awk -F' ' '{print $2}' | sed -e "s/\"//g")
+	f_par=${dir}/$(basename $f); f_par=${f_par%.F90}_parallel.F90
+
+	openacc_includes=$(grep "#include.*_openacc.intfb.h" src/local/${f_par} | awk -F' ' '{print $2}' | sed -e "s/\"//g")
 	for ii in ${openacc_includes}; do
 		zz=$(find IAL/ -name ${ii})
 		if [[ -z ${zz} ]]; then
@@ -99,7 +108,7 @@ for f in ${ff}; do
 		fi
 	done
 
-	parallel_includes=$(grep "#include.*_parallel.intfb.h" src/local/${f%.F90}_parallel.F90 | awk -F' ' '{print $2}' | sed -e "s/\"//g")
+	parallel_includes=$(grep "#include.*_parallel.intfb.h" src/local/${f_par} | awk -F' ' '{print $2}' | sed -e "s/\"//g")
 	for ii in ${parallel_includes}; do
 		zz=$(find src/local/.intfb/ -name ${ii})
 		if [[ -z ${zz} ]]; then
